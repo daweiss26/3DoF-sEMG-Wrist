@@ -68,7 +68,7 @@ class AbilityHand:
 		# Get serial connection
 		self.serial = self.utils.get_serial_port(target_port)
 		if self.serial == None:
-			raise NameError(f'Error initializing using port: {target_port}')
+			print(f'Error initializing using port: {target_port}, continuing without writing')
 
 	def __enter__(self):
 		return self
@@ -170,9 +170,11 @@ class AbilityHand:
 	def send_command(self):
 		msg = self.utils.farr_to_barr(0x50, self.fpos)
 		msg = self.utils.ppp_stuff(msg)
-		self.serial.write(msg)
+		if self.serial:
+			self.serial.write(msg)
 
 	def relax(self):
 		msg = self.utils.farr_to_barr(0x50, [15, 15, 15, 15, 15, -15])
 		msg = self.utils.ppp_stuff(msg)
-		self.serial.write(msg)
+		if self.serial:
+			self.serial.write(msg)
