@@ -30,7 +30,7 @@ class HAND_LANDMARK_MAP(IntEnum):
 
 class AbilityHand:
 
-	def __init__(self, target_port):
+	def __init__(self, target_port, errorOnConnectionFailure=False):
 		self.utils = AbilityHandUtils()
 		self.outp_fng = [5, 100]
 		self.inp_fng = [20, 130]
@@ -68,7 +68,10 @@ class AbilityHand:
 		# Get serial connection
 		self.serial = self.utils.get_serial_port(target_port)
 		if self.serial == None:
-			print(f'Error initializing using port: {target_port}, continuing without writing')
+			if errorOnConnectionFailure:
+				raise NameError(f'Error initializing using port: {target_port}')
+			else:
+				print(f'Error initializing using port: {target_port}, continuing without writing')
 
 	def __enter__(self):
 		return self
