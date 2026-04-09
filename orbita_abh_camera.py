@@ -103,7 +103,7 @@ def main():
                 if not args.disable_hand:
                     hand_thread = threading.Thread(
                         target=hand_task,
-                        args=(abh),
+                        args=(abh,),
                         daemon=True
                     )
                 
