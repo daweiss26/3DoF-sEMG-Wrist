@@ -1,4 +1,6 @@
 history/
+testing/
+poster/
 .venv/
 .vscode/
 **/__pycache__/

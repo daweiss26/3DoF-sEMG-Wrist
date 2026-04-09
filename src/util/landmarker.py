@@ -148,7 +148,7 @@ class Landmarker:
             if visualize:
                 if not color_flipped:
                     output_image = cv2.cvtColor(output_image, cv2.COLOR_RGB2BGR)
-                cv2.imshow("IT'S ORBITA TIME!!!", output_image)
+                cv2.imshow("Demo", output_image)
 
         key = cv2.waitKey(1) & 0xFF
         if key == ord('q'):
@@ -194,7 +194,7 @@ class Landmarker:
                                                                             connections, connection_style, landmark_style)
 
             if visualize:
-                cv2.imshow("IT'S ORBITA TIME!!!", output_image)
+                cv2.imshow("Demo", output_image)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             return None

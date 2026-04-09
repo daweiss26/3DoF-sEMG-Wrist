@@ -44,7 +44,7 @@ def main():
 		print(f"Theta was: {max_theta} (i: {max_i})")
 
 	# Might need to adjust camera index depending on setup
-	with Landmarker(1, './hand_landmarker.task', './pose_landmarker_lite.task') as landmarker:
+	with Landmarker(1, './task/hand_landmarker.task', './task/pose_landmarker_lite.task') as landmarker:
 		frame_width = int(landmarker.camera.get(cv2.CAP_PROP_FRAME_WIDTH))
 		frame_height = int(landmarker.camera.get(cv2.CAP_PROP_FRAME_HEIGHT))
 		transformer = Transformer(frame_width, frame_height)

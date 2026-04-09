@@ -16,11 +16,11 @@ THETA_ERR_LIMIT = 1e-6
 
 
 def main():
-    with Orbita('./config.yaml') as orbita:
+    with Orbita('./config/default.yaml') as orbita:
         orbita.wake_up()
         # orbita.stretch()
 
-        with Landmarker(1, './hand_landmarker.task', './pose_landmarker_lite.task') as landmarker:
+        with Landmarker(1, './task/hand_landmarker.task', './task/pose_landmarker_lite.task') as landmarker:
             frame_width = int(landmarker.camera.get(CAP_PROP_FRAME_WIDTH))
             frame_height = int(landmarker.camera.get(CAP_PROP_FRAME_HEIGHT))
             transformer = Transformer(frame_width, frame_height)

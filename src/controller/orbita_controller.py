@@ -19,7 +19,7 @@ class Orbita:
                 raise NameError(f'Error initializing wrist using config: {config}, ({e})')
             else:
                 print(f'Error initializing wrist using config: {config}, using fake config, ({e})')
-                self.controller = Orbita3dController.from_config('./fake.yaml')
+                self.controller = Orbita3dController.from_config('./config/fake.yaml')
 
     def __enter__(self):
         return self

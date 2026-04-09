@@ -81,12 +81,12 @@ def main():
     global landmarking_result
     stop_event.clear()
 
-    with Orbita('./config.yaml') as orbita:
+    with Orbita('./config/default.yaml') as orbita:
         orbita.wake_up()
 
         with AbilityHand('cu.usbserial-BG01X7S0') as abh:
 
-            with Landmarker(1, './hand_landmarker.task', './pose_landmarker_lite.task', args.use_elbow) as landmarker:
+            with Landmarker(1, './task/hand_landmarker.task', './task/pose_landmarker_lite.task', args.use_elbow) as landmarker:
                 frame_width = int(landmarker.camera.get(CAP_PROP_FRAME_WIDTH))
                 frame_height = int(landmarker.camera.get(CAP_PROP_FRAME_HEIGHT))
                 transformer = Transformer(frame_width, frame_height)

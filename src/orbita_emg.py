@@ -87,7 +87,7 @@ def main():
         print("SIMULATION MODE ACTIVE: Orbita will not move.")
         visualizer = QuaternionVisualizer()
 
-    with Orbita('./config.yaml') as orbita:
+    with Orbita('./config/default.yaml') as orbita:
         orbita.wake_up()
         mindrove.prepare_session()
         mindrove.start_stream()
