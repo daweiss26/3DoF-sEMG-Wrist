@@ -6,22 +6,23 @@ import numpy as np
 import mediapipe as mp
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
-from mediapipe.framework.formats import landmark_pb2
+from mediapipe.tasks.python.vision import drawing_utils, drawing_styles, HandLandmarksConnections
+from mediapipe.tasks.python.components.containers.landmark import NormalizedLandmark
 
 
 class Landmarker:
-    DEFAULT_CONNECTIONS = list(mp.solutions.hands.HAND_CONNECTIONS) + [(0,21)]
-    DEFAULT_HAND_CONNECTIONS = list(mp.solutions.hands.HAND_CONNECTIONS) + [(0,21)]
-    DEFAULT_CONNECTION_STYLE = dict(mp.solutions.drawing_styles.get_default_hand_connections_style())
-    DEFAULT_CONNECTION_STYLE[(0, 21)] = mp.solutions.drawing_utils.DrawingSpec(color=(0, 0, 255), thickness=2)
-    DEFAULT_LANDMARK_STYLE = dict(mp.solutions.drawing_styles.get_default_hand_landmarks_style())
-    DEFAULT_LANDMARK_STYLE[0] = mp.solutions.drawing_utils.DrawingSpec(color=(0,0,255), thickness=2, circle_radius=3)
-    DEFAULT_LANDMARK_STYLE[1] = mp.solutions.drawing_utils.DrawingSpec(color=(0,0,0), thickness=2, circle_radius=3)
-    DEFAULT_LANDMARK_STYLE[5] = mp.solutions.drawing_utils.DrawingSpec(color=(0,0,0), thickness=2, circle_radius=3)
-    DEFAULT_LANDMARK_STYLE[9] = mp.solutions.drawing_utils.DrawingSpec(color=(0,0,0), thickness=2, circle_radius=3)
-    DEFAULT_LANDMARK_STYLE[13] = mp.solutions.drawing_utils.DrawingSpec(color=(0,0,0), thickness=2, circle_radius=3)
-    DEFAULT_LANDMARK_STYLE[17] = mp.solutions.drawing_utils.DrawingSpec(color=(0,0,0), thickness=2, circle_radius=3)
-    DEFAULT_LANDMARK_STYLE[21] = mp.solutions.drawing_utils.DrawingSpec(color=(0,0,255), thickness=2, circle_radius=3)
+    DEFAULT_CONNECTIONS = list(vision.HandLandmarksConnections.HAND_CONNECTIONS) + [HandLandmarksConnections.Connection(start=0,end=21)]
+    DEFAULT_HAND_CONNECTIONS = list(vision.HandLandmarksConnections.HAND_CONNECTIONS) + [(0,21)]
+    DEFAULT_CONNECTION_STYLE = dict(drawing_styles.get_default_hand_connections_style())
+    DEFAULT_CONNECTION_STYLE[(0, 21)] = drawing_utils.DrawingSpec(color=(0, 0, 255), thickness=2)
+    DEFAULT_LANDMARK_STYLE = dict(drawing_styles.get_default_hand_landmarks_style())
+    DEFAULT_LANDMARK_STYLE[0] = drawing_utils.DrawingSpec(color=(0,0,255), thickness=2, circle_radius=3)
+    DEFAULT_LANDMARK_STYLE[1] = drawing_utils.DrawingSpec(color=(0,0,0), thickness=2, circle_radius=3)
+    DEFAULT_LANDMARK_STYLE[5] = drawing_utils.DrawingSpec(color=(0,0,0), thickness=2, circle_radius=3)
+    DEFAULT_LANDMARK_STYLE[9] = drawing_utils.DrawingSpec(color=(0,0,0), thickness=2, circle_radius=3)
+    DEFAULT_LANDMARK_STYLE[13] = drawing_utils.DrawingSpec(color=(0,0,0), thickness=2, circle_radius=3)
+    DEFAULT_LANDMARK_STYLE[17] = drawing_utils.DrawingSpec(color=(0,0,0), thickness=2, circle_radius=3)
+    DEFAULT_LANDMARK_STYLE[21] = drawing_utils.DrawingSpec(color=(0,0,255), thickness=2, circle_radius=3)
     ELBOW_VISIBILITY_THRESHOLD = 0.8
     hand_landmarker = None
     hand_result = None
@@ -33,6 +34,9 @@ class Landmarker:
         hand_options = vision.HandLandmarkerOptions(
                             base_options=python.BaseOptions(model_asset_path=hand_task),
                             num_hands=1,
+                            min_hand_detection_confidence=0.8,
+                            min_hand_presence_confidence=0.8,
+                            min_tracking_confidence=0.8,
                             running_mode=vision.RunningMode.LIVE_STREAM,
                             result_callback=self.set_hand_result)
         self.hand_landmarker = vision.HandLandmarker.create_from_options(hand_options)
@@ -40,12 +44,15 @@ class Landmarker:
             pose_options = vision.PoseLandmarkerOptions(
                                 base_options=python.BaseOptions(model_asset_path=pose_task),
                                 num_poses=1,
+                                min_pose_detection_confidence=0.8,
+                                min_pose_presence_confidence=0.8,
+                                min_tracking_confidence=0.8,
                                 running_mode=vision.RunningMode.LIVE_STREAM,
                                 result_callback=self.set_pose_result)
             self.pose_landmarker = vision.PoseLandmarker.create_from_options(pose_options)
             self.DEFAULT_CONNECTIONS.append((0,22))
-            self.DEFAULT_CONNECTION_STYLE[(0, 22)] = mp.solutions.drawing_utils.DrawingSpec(color=(0, 0, 255), thickness=2)
-            self.DEFAULT_LANDMARK_STYLE[22] = mp.solutions.drawing_utils.DrawingSpec(color=(0,0,255), thickness=2, circle_radius=3)
+            self.DEFAULT_CONNECTION_STYLE[(0, 22)] = drawing_utils.DrawingSpec(color=(0, 0, 255), thickness=2)
+            self.DEFAULT_LANDMARK_STYLE[22] = drawing_utils.DrawingSpec(color=(0,0,255), thickness=2, circle_radius=3)
 
     def __enter__(self):
         return self
@@ -88,7 +95,7 @@ class Landmarker:
 
             if elbow and elbow.visibility > self.ELBOW_VISIBILITY_THRESHOLD:
                 landmarks = list(hand_result.hand_landmarks[hand_idx])
-                landmarks.append(landmark_pb2.NormalizedLandmark(
+                landmarks.append(NormalizedLandmark(
                     x=(3*hand_result.hand_landmarks[hand_idx][9].x+2*hand_result.hand_landmarks[hand_idx][13].x)/5,
                     y=(3*hand_result.hand_landmarks[hand_idx][9].y+2*hand_result.hand_landmarks[hand_idx][13].y)/5,
                     z=(3*hand_result.hand_landmarks[hand_idx][9].z+2*hand_result.hand_landmarks[hand_idx][13].z)/5,
@@ -98,7 +105,7 @@ class Landmarker:
                 landmarking_results.append((landmarks, handedness))
             elif not elbow:
                 landmarks = list(hand_result.hand_landmarks[hand_idx])
-                landmarks.append(landmark_pb2.NormalizedLandmark(
+                landmarks.append(NormalizedLandmark(
                     x=(3*hand_result.hand_landmarks[hand_idx][9].x+2*hand_result.hand_landmarks[hand_idx][13].x)/5,
                     y=(3*hand_result.hand_landmarks[hand_idx][9].y+2*hand_result.hand_landmarks[hand_idx][13].y)/5,
                     z=(3*hand_result.hand_landmarks[hand_idx][9].z+2*hand_result.hand_landmarks[hand_idx][13].z)/5,
@@ -156,13 +163,9 @@ class Landmarker:
         """Draws the detected landmarks and connections on the provided image"""
         image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
         image = np.ascontiguousarray(image.copy())
-        landmark_list = landmark_pb2.NormalizedLandmarkList()
-        landmark_list.landmark.extend([
-            landmark_pb2.NormalizedLandmark(x=landmark.x, y=landmark.y, z=landmark.z) for landmark in landmarks
-        ])
-        mp.solutions.drawing_utils.draw_landmarks(
+        drawing_utils.draw_landmarks(
             image,
-            landmark_list,
+            landmarks,
             connections=connections if connections else self.DEFAULT_CONNECTIONS,
             connection_drawing_spec=connection_style if connection_style else self.DEFAULT_CONNECTION_STYLE,
             landmark_drawing_spec=landmark_style if landmark_style else self.DEFAULT_LANDMARK_STYLE,
@@ -227,13 +230,9 @@ class Landmarker:
     def visualize_hand_results(self, image, landmarks, connections, connection_style, landmark_style):
         """Draws the detected hand landmarks and connections on the provided image"""
         image = np.ascontiguousarray(image.copy())
-        landmark_list = landmark_pb2.NormalizedLandmarkList()
-        landmark_list.landmark.extend([
-            landmark_pb2.NormalizedLandmark(x=landmark.x, y=landmark.y, z=landmark.z) for landmark in landmarks
-        ])
-        mp.solutions.drawing_utils.draw_landmarks(
+        drawing_utils.draw_landmarks(
             image,
-            landmark_list,
+            landmarks,
             connections=connections if connections else self.DEFAULT_HAND_CONNECTIONS,
             connection_drawing_spec=connection_style if connection_style else self.DEFAULT_CONNECTION_STYLE,
             landmark_drawing_spec=landmark_style if landmark_style else self.DEFAULT_LANDMARK_STYLE,

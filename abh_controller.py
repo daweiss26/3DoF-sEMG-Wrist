@@ -1,8 +1,31 @@
 """Controller for the Psyonic Ability Hand"""
 
-import mediapipe as mp
+from enum import IntEnum
 import numpy as np
 from abh_utils import AbilityHandUtils
+
+class HAND_LANDMARK_MAP(IntEnum):
+    WRIST = 0
+    THUMB_CMC = 1
+    THUMB_MCP = 2
+    THUMB_IP = 3
+    THUMB_TIP = 4
+    INDEX_FINGER_MCP = 5
+    INDEX_FINGER_PIP = 6
+    INDEX_FINGER_DIP = 7
+    INDEX_FINGER_TIP = 8
+    MIDDLE_FINGER_MCP = 9
+    MIDDLE_FINGER_PIP = 10
+    MIDDLE_FINGER_DIP = 11
+    MIDDLE_FINGER_TIP = 12
+    RING_FINGER_MCP = 13
+    RING_FINGER_PIP = 14
+    RING_FINGER_DIP = 15
+    RING_FINGER_TIP = 16
+    PINKY_MCP = 17
+    PINKY_PIP = 18
+    PINKY_DIP = 19
+    PINKY_TIP = 20
 
 
 class AbilityHand:
@@ -60,7 +83,6 @@ class AbilityHand:
 	
 	def get_new_fpos(self, landmarking_result):
 		# Extract landmarks
-		HANDS = mp.solutions.hands.HandLandmark
 		landmarks = landmarking_result[0][:21]
 		hand_landmarks = np.array([[lm.x, lm.y, lm.z] for lm in landmarks], dtype=np.float32)
 		handedness = landmarking_result[1]
@@ -70,14 +92,14 @@ class AbilityHand:
 			self.handed_sign = -1
 
 		# Get scale
-		mcp_indices = [HANDS.INDEX_FINGER_MCP, HANDS.MIDDLE_FINGER_MCP, HANDS.RING_FINGER_MCP, HANDS.PINKY_MCP]
+		mcp_indices = [HAND_LANDMARK_MAP.INDEX_FINGER_MCP, HAND_LANDMARK_MAP.MIDDLE_FINGER_MCP, HAND_LANDMARK_MAP.RING_FINGER_MCP, HAND_LANDMARK_MAP.PINKY_MCP]
 		mcp_coords = hand_landmarks[mcp_indices]
 		self.scale = np.linalg.norm(np.diff(mcp_coords, axis=0), axis=1).mean()
 
 		# Construct coordinate frame
-		wrist = hand_landmarks[HANDS.WRIST]
-		index_mcp = hand_landmarks[HANDS.INDEX_FINGER_MCP]
-		pinky_mcp = hand_landmarks[HANDS.PINKY_MCP]
+		wrist = hand_landmarks[HAND_LANDMARK_MAP.WRIST]
+		index_mcp = hand_landmarks[HAND_LANDMARK_MAP.INDEX_FINGER_MCP]
+		pinky_mcp = hand_landmarks[HAND_LANDMARK_MAP.PINKY_MCP]
 
 		vx = index_mcp - wrist
 		vx /= np.linalg.norm(vx)
@@ -98,11 +120,11 @@ class AbilityHand:
 
 		# Transform all points to base frame
 		target_indices = [
-			HANDS.THUMB_TIP, HANDS.THUMB_IP, HANDS.THUMB_MCP, HANDS.THUMB_CMC,
-			HANDS.INDEX_FINGER_TIP, HANDS.INDEX_FINGER_PIP, HANDS.INDEX_FINGER_MCP,
-			HANDS.MIDDLE_FINGER_TIP, HANDS.MIDDLE_FINGER_PIP, HANDS.MIDDLE_FINGER_MCP,
-			HANDS.RING_FINGER_TIP, HANDS.RING_FINGER_PIP, HANDS.RING_FINGER_MCP,
-			HANDS.PINKY_TIP, HANDS.PINKY_PIP, HANDS.PINKY_MCP
+			HAND_LANDMARK_MAP.THUMB_TIP, HAND_LANDMARK_MAP.THUMB_IP, HAND_LANDMARK_MAP.THUMB_MCP, HAND_LANDMARK_MAP.THUMB_CMC,
+			HAND_LANDMARK_MAP.INDEX_FINGER_TIP, HAND_LANDMARK_MAP.INDEX_FINGER_PIP, HAND_LANDMARK_MAP.INDEX_FINGER_MCP,
+			HAND_LANDMARK_MAP.MIDDLE_FINGER_TIP, HAND_LANDMARK_MAP.MIDDLE_FINGER_PIP, HAND_LANDMARK_MAP.MIDDLE_FINGER_MCP,
+			HAND_LANDMARK_MAP.RING_FINGER_TIP, HAND_LANDMARK_MAP.RING_FINGER_PIP, HAND_LANDMARK_MAP.RING_FINGER_MCP,
+			HAND_LANDMARK_MAP.PINKY_TIP, HAND_LANDMARK_MAP.PINKY_PIP, HAND_LANDMARK_MAP.PINKY_MCP
 		]
 
 		points = hand_landmarks[target_indices]
