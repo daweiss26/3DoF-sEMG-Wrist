@@ -52,7 +52,6 @@ rich==14.3.3
 scikit-learn==1.8.0
 scipy==1.17.1
 sentencepiece==0.2.1
-serial==0.0.97
 setuptools==82.0.1
 six==1.17.0
 sounddevice==0.5.5
