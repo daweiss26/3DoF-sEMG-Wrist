@@ -11,12 +11,15 @@ class Orbita:
     MIN_STEP = np.deg2rad(3)
     HOMED_LIMIT = 0.001
 
-    def __init__(self, config):
+    def __init__(self, config, errorOnConnectionFailure=False):
         try:
             self.controller = Orbita3dController.from_config(config)
         except Exception as e:
-            print(f'Error initializing ({e}): Using fake config')
-            self.controller = Orbita3dController.from_config('./fake.yaml')
+            if errorOnConnectionFailure:
+                raise NameError(f'Error initializing wrist using config: {config}, ({e})')
+            else:
+                print(f'Error initializing wrist using config: {config}, using fake config, ({e})')
+                self.controller = Orbita3dController.from_config('./fake.yaml')
 
     def __enter__(self):
         return self

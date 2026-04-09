@@ -69,9 +69,9 @@ class AbilityHand:
 		self.serial = self.utils.get_serial_port(target_port)
 		if self.serial == None:
 			if errorOnConnectionFailure:
-				raise NameError(f'Error initializing using port: {target_port}')
+				raise NameError(f'Error initializing hand using port: {target_port}')
 			else:
-				print(f'Error initializing using port: {target_port}, continuing without writing')
+				print(f'Error initializing hand using port: {target_port}, continuing without writing')
 
 	def __enter__(self):
 		return self
