@@ -132,6 +132,7 @@ def main():
 	parser.add_argument("--append_master", action="store_true", help="Add this session to master dataset")
 	parser.add_argument("--map_position", action="store_true", help="Map EMG to position")
 	args = parser.parse_args()
+	_, output_file = args.output_file.split('=', 1)
 
 	save = None
 	all_mindrove_data = []
@@ -166,7 +167,7 @@ def main():
 	if save:
 		process_and_save(all_mindrove_data,
 				   		 all_mediapipe_data,
-				   		 args.output_file, 
+				   		 output_file, 
 						 args.append_master, 
 						 args.map_position)
 		
