@@ -74,7 +74,7 @@ def plot_learning_curves(history):
 
     # Save the high-res image directly in addition to showing it
     plt.tight_layout() # Ensures labels are not cut off when saved
-    plt.savefig('val_loss_poster_1.png', format='png', dpi=100, bbox_inches='tight')
+    plt.savefig('val_loss_poster_2.png', format='png', dpi=100, bbox_inches='tight')
 
     # plt.figure(figsize=(10, 5))
 
