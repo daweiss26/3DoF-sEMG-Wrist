@@ -60,7 +60,7 @@ def wrist_task(orbita: Orbita, transformer: Transformer):
 
         try:
             rotation_matrix = transformer.get_R_from_landmarks(landmarks, mirror_hand=True) # Get rotation matrix from landmarks for wrist
-            clamped_quaternion = transformer.get_q_clamped(rotation_matrix, last_quaternion, orbita.TILT_LIMIT)
+            clamped_quaternion = transformer.get_q_clamped_from_R(rotation_matrix, last_quaternion, orbita.TILT_LIMIT)
 
             theta_step = transformer.get_theta_between_q(last_quaternion, clamped_quaternion) # Get detected orientation's angle from current
             if theta_step > orbita.MIN_STEP and theta_step < orbita.MAX_STEP:

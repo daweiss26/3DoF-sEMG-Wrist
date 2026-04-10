@@ -12,6 +12,7 @@ import time
 import argparse
 import numpy as np
 import tensorflow as tf
+from transformer import Transformer
 from adaptive_scaler import AdaptiveScaler
 from mindrove.board_shim import BoardShim, MindRoveInputParams, BoardIds
 from orbita_controller import Orbita
@@ -91,6 +92,7 @@ def main():
         orbita.wake_up()
         mindrove.prepare_session()
         mindrove.start_stream()
+        transformer = Transformer(0, 0)
         print("Control Active")
         
         # Initial Orientation
@@ -125,12 +127,15 @@ def main():
                             UPDATE_INTERVAL
                         )
 
-                    if args.simulate:
-                        visualizer.update(q_new)
-                    else:
-                        # Orbita's order of rpy: Z (outward) is roll, X (rightward) is pitch, Y (upward) is yaw
-                        orbita.set_orientation((q_new.z, q_new.x, q_new.y, q_new.w))
-                    q_current = q_new
+                    q_clamped = transformer.get_q_clamped(q_new, q_current, orbita.TILT_LIMIT)
+                    theta_step = transformer.get_theta_between_q(q_current, q_clamped) # Get detected orientation's angle from current
+                    if theta_step > orbita.MIN_STEP and theta_step < orbita.MAX_STEP:
+                        if args.simulate:
+                            visualizer.update(q_clamped)
+                        else:
+                            # Orbita's order of rpy: Z (outward) is roll, X (rightward) is pitch, Y (upward) is yaw
+                            orbita.set_orientation((q_clamped.z, q_clamped.x, q_clamped.y, q_clamped.w))
+                        q_current = q_clamped
 
                 elapsed = time.time() - loop_start
                 sleep_time = max(0, UPDATE_INTERVAL - elapsed)

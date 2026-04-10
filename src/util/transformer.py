@@ -343,11 +343,15 @@ class Transformer:
             axis = -axis
 
         return axis, theta
-
-    def get_q_clamped(self, R, q_prev, max_tilt):
+    
+    def get_q_clamped_from_R(self, R, q_prev, max_tilt):
         """Clamp the tilt of a rotation to max_tilt (rad) while preserving yaw about the global y-axis (yaw)"""
-        # Convert input rotation matrix to your quaternion convention
-        q_norm = self.get_q_norm(self.get_q_from_R(R))
+        # Convert input rotation matrix to quaternion convention
+        return self.get_q_clamped(self.get_q_from_R(R), q_prev, max_tilt)
+
+    def get_q_clamped(self, q_curr, q_prev, max_tilt):
+        """Clamp the tilt of a rotation to max_tilt (rad) while preserving yaw about the global y-axis (yaw)"""
+        q_norm = self.get_q_norm(q_curr)
 
         # Decompose into tilt and yaw
         q_tilt, q_twist = self.get_q_from_tilt_twist(q_norm)

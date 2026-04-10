@@ -11,10 +11,10 @@ import os
 import argparse
 import numpy as np
 import bisect
-import cv2
 from landmarker import Landmarker
 from transformer import Transformer
 from mindrove.board_shim import BoardShim, MindRoveInputParams, BoardIds
+from cv2 import CAP_PROP_FRAME_WIDTH, CAP_PROP_FRAME_HEIGHT, Rodrigues
 
 BoardShim.enable_dev_board_logger()
 PARAMS = MindRoveInputParams()
@@ -24,7 +24,7 @@ TIMESTEP_CHANNELS = BoardShim.get_timestamp_channel(BOARD_ID)
 EMG_CHANNELS = BoardShim.get_emg_channels(BOARD_ID)
 WINDOW_DURATION = 0.25 # seconds
 WINDOW_NUM_SAMPLES = int(WINDOW_DURATION * SAMPLING_RATE) # 125 samples
-EMD = 0.1 # seconds (Electromechanical Delay)
+EMD = 0.083 # seconds (Electromechanical Delay) experimentally determined
 
 
 def get_closest_rotation(target_time, camera_data):
@@ -75,7 +75,7 @@ def process_and_save(all_mindrove_data, all_mediapipe_data, output_file, append_
 		
 		# Convert R_diff to Rotation Vector (Axis * Angle) using Rodrigues
 		# rot_vec magnitude is the angle (radians), direction is the axis
-		rot_vec, _ = cv2.Rodrigues(R_diff)
+		rot_vec, _ = Rodrigues(R_diff)
 		rot_vec = rot_vec.flatten() # Rodrigues returns arrays wrapped in an array
 
 		# If enabled, just map EMG to rotation instead of velocity
@@ -139,8 +139,8 @@ def main():
 	mindrove = BoardShim(BOARD_ID, PARAMS)
 
 	with Landmarker(1, './task/hand_landmarker.task', './task/pose_landmarker_lite.task') as landmarker:
-		frame_width = int(landmarker.camera.get(cv2.CAP_PROP_FRAME_WIDTH))
-		frame_height = int(landmarker.camera.get(cv2.CAP_PROP_FRAME_HEIGHT))
+		frame_width = int(landmarker.camera.get(CAP_PROP_FRAME_WIDTH))
+		frame_height = int(landmarker.camera.get(CAP_PROP_FRAME_HEIGHT))
 		transformer = Transformer(frame_width, frame_height)
 
 		mindrove.prepare_session()
