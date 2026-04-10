@@ -12,7 +12,7 @@ from mediapipe.tasks.python.components.containers.landmark import NormalizedLand
 
 class Landmarker:
     DEFAULT_CONNECTIONS = list(vision.HandLandmarksConnections.HAND_CONNECTIONS) + [HandLandmarksConnections.Connection(start=0,end=21)]
-    DEFAULT_HAND_CONNECTIONS = list(vision.HandLandmarksConnections.HAND_CONNECTIONS) + [(0,21)]
+    DEFAULT_HAND_CONNECTIONS = list(vision.HandLandmarksConnections.HAND_CONNECTIONS) + [HandLandmarksConnections.Connection(start=0,end=21)]
     DEFAULT_CONNECTION_STYLE = dict(drawing_styles.get_default_hand_connections_style())
     DEFAULT_CONNECTION_STYLE[(0, 21)] = drawing_utils.DrawingSpec(color=(0, 0, 255), thickness=2)
     DEFAULT_LANDMARK_STYLE = dict(drawing_styles.get_default_hand_landmarks_style())
@@ -176,6 +176,7 @@ class Landmarker:
     def run_hand_detection(self, visualize=True, connections=None, connection_style=None, landmark_style=None):
         """Detects hand landmarks in the image captured by the camera"""
         landmarking_results = []
+        color_flipped = False
         timestamp = None
         success, bgr_image = self.camera.read()
         if not success:
@@ -189,11 +190,14 @@ class Landmarker:
         if self.hand_result is not None:
             hand_result, output_image, timestamp = self.hand_result
 
+            color_flipped = False
             if hand_result.hand_landmarks:
-                landmarking_results, output_image = self.get_hand_landmarks(output_image, hand_result, visualize, 
+                landmarking_results, output_image, color_flipped = self.get_hand_landmarks(output_image, hand_result, visualize, 
                                                                             connections, connection_style, landmark_style)
 
             if visualize:
+                if not color_flipped:
+                    output_image = cv2.cvtColor(output_image, cv2.COLOR_RGB2BGR)
                 cv2.imshow("Demo", output_image)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -219,16 +223,24 @@ class Landmarker:
                 right_found = True
 
             landmarks = list(hand_result.hand_landmarks[hand_idx])
+            landmarks.append(NormalizedLandmark(
+                x=(3*hand_result.hand_landmarks[hand_idx][9].x+2*hand_result.hand_landmarks[hand_idx][13].x)/5,
+                y=(3*hand_result.hand_landmarks[hand_idx][9].y+2*hand_result.hand_landmarks[hand_idx][13].y)/5,
+                z=(3*hand_result.hand_landmarks[hand_idx][9].z+2*hand_result.hand_landmarks[hand_idx][13].z)/5,
+                visibility=1.0
+            )) # End of wrist orientation
             landmarking_results.append((landmarks, handedness))
 
             if visualize and landmarks:
                 output_image = self.visualize_hand_results(output_image, landmarks, connections, connection_style, landmark_style)
+                color_flipped = True
 
-        return landmarking_results, output_image
+        return landmarking_results, output_image, color_flipped
 
     
     def visualize_hand_results(self, image, landmarks, connections, connection_style, landmark_style):
         """Draws the detected hand landmarks and connections on the provided image"""
+        image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
         image = np.ascontiguousarray(image.copy())
         drawing_utils.draw_landmarks(
             image,
