@@ -7,3 +7,5 @@ poster/
 *.py[cod]
 **/.DS_Store
 **/*.npz
+data/
+model/
