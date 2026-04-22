@@ -23,6 +23,7 @@ SAMPLING_RATE = BoardShim.get_sampling_rate(BOARD_ID)
 TIMESTEP_CHANNELS = BoardShim.get_timestamp_channel(BOARD_ID)
 EMG_CHANNELS = BoardShim.get_emg_channels(BOARD_ID)
 WINDOW_DURATION = 0.25 # seconds
+WINDOW_SLIDING_STEP = 0.05 # seconds
 WINDOW_NUM_SAMPLES = int(WINDOW_DURATION * SAMPLING_RATE) # 125 samples
 EMD = 0.083 # seconds (Electromechanical Delay) experimentally determined
 
@@ -86,7 +87,7 @@ def process_and_save(all_mindrove_data, all_mediapipe_data, output_file, append_
 		# Move onto next window
 		all_emg_windows.append(emg_window)
 		all_rotation_labels.append(rotation_label)
-		curr_time += WINDOW_DURATION
+		curr_time += WINDOW_SLIDING_STEP
 
 	if all_emg_windows and all_rotation_labels:
 		# By normalizing here, we lose raw data values, but standardizes
