@@ -30,12 +30,11 @@ mediapipe==0.10.33
 mindrove==5.3.0
 ml_dtypes==0.5.4
 namex==0.1.0
-numpy==1.26.4
+numpy==2.4.4
 opencv-contrib-python==4.11.0.86
 opencv-python==4.13.0.92
 opt_einsum==3.4.0
 optree==0.19.0
--e git+https://github.com/pollen-robotics/orbita3d_control.git@41cbc93320f7803610aae31fe7783c65a1c7441d#egg=orbita3d&subdirectory=orbita3d_c_api
 packaging==26.0
 pandas==3.0.2
 pillow==12.2.0
