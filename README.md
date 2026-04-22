@@ -73,6 +73,7 @@ The libraries installed:
     "python.terminal.useEnvFile": true
 }
 ```
+Or, in your terminal, ```".:./src:./src/controller:./src/util"``` to your PYTHONPATH environment variable, such as with ```export PYTHONPATH=".:./src:./src/controller:./src/util:$PYTHONPATH"``` for Mac/Linux. For Windows, ```run_camera_demo.bat``` should take care of this.
 
 If using Windows: running ```run_camera_demo.bat``` should work. *Note: You may need to change the specific virtual environment listed in the .bat file if you are using something different from .venv*
 

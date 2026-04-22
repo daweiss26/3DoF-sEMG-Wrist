@@ -1,0 +1,8 @@
+[workspace]
+resolver = "2"
+
+members = [
+    "orbita3d_c_api",
+    "orbita3d_controller",
+    "orbita3d_kinematics",
+]

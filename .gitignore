@@ -10,3 +10,10 @@ poster/
 data/
 model/
 val_loss*.png
+orbita3d_control/target/
+orbita3d_control/docs/
+**/*.zip
+.DS_Store
+__MACOSX/
+._*
+Cargo.lock

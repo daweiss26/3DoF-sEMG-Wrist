@@ -1,0 +1,510 @@
+from typing import Tuple
+
+from ._orbita3d import ffi, lib
+
+
+class KinematicsModel:
+    """Orbita3d kinematics model"""
+
+    def __init__(
+        self,
+        alpha: float,
+        gamma_min: float,
+        offset: float,
+        beta: float,
+        gamma_max: float,
+        passiv_arms_direct: bool,
+    ) -> None:
+        """Create a new Orbita3d kinematics model.
+
+        See the [README.md](https://github.com/pollen-robotics/orbita3d_control/orbita3d_kinematics) for more information about the parameters.
+        """
+        self.model = ffi.new(
+            "struct Orbita3dKinematicsModel *",
+            lib.create_orbita3d_kinematics_model(
+                alpha,
+                gamma_min,
+                offset,
+                beta,
+                gamma_max,
+                passiv_arms_direct,
+            ),
+        )
+
+    def forward_position(
+        self, thetas: Tuple[float, float, float]
+    ) -> Tuple[float, float, float, float]:
+        """Compute the forward position kinematics of the Orbita3d.
+
+        Args:
+            thetas: The three motors angles (in radians).
+        Returns:
+            The quaternion representing the end-effector orientation (qx, qy, qz, qw).
+        """
+        thetas = ffi.new("double(*)[3]", tuple(thetas))
+        q = ffi.new("double(*)[4]")
+
+        check(lib.orbita3d_kinematics_forward_position(self.model, thetas, q))
+
+        return tuple(q[0])
+
+    def forward_velocity(
+        self,
+        thetas: Tuple[float, float, float],
+        thetas_velocity: Tuple[float, float, float],
+    ) -> Tuple[float, float, float, float]:
+        """Compute the forward velocity kinematics of the Orbita3d.
+
+        Args:
+            thetas: The three motors angles (in radians).
+            thetas_velocity: The three motors velocities (in radians per second).
+        Returns:
+            Platform output velocity (rad/s)
+        """
+        thetas = ffi.new("double(*)[3]", tuple(thetas))
+        thetas_velocity = ffi.new("double(*)[3]", tuple(thetas_velocity))
+        q_velocity = ffi.new("double(*)[3]")
+
+        check(
+            lib.orbita3d_kinematics_forward_velocity(
+                self.model, thetas, thetas_velocity, q_velocity
+            )
+        )
+
+        return tuple(q_velocity[0])
+
+    def forward_torque(
+        self,
+        thetas: Tuple[float, float, float],
+        thetas_torque: Tuple[float, float, float],
+    ) -> Tuple[float, float, float, float]:
+        """Compute the forward torque kinematics of the Orbita3d.
+
+        Args:
+            thetas: The three motors angles (in radians).
+            thetas_torque: The three motors torques (in Newton meters).
+        Returns:
+            The quaternion representing the end-effector orientation torque (qx, qy, qz, qw).
+        """
+        thetas = ffi.new("double(*)[3]", tuple(thetas))
+        thetas_torque = ffi.new("double(*)[3]", tuple(thetas_torque))
+        q_torque = ffi.new("double(*)[4]")
+
+        check(
+            lib.orbita3d_kinematics_forward_torque(
+                self.model, thetas, thetas_torque, q_torque
+            )
+        )
+
+        return tuple(q_torque[0])
+
+    def inverse_position(
+        self, q: Tuple[float, float, float, float]
+    ) -> Tuple[float, float, float]:
+        """Compute the inverse position kinematics of the Orbita3d.
+
+        Args:
+            q: The quaternion representing the end-effector orientation (qx, qy, qz, qw).
+        Returns:
+            The three motors angles (in radians).
+        """
+        q = ffi.new("double(*)[4]", tuple(q))
+        thetas = ffi.new("double(*)[3]")
+
+        check(lib.orbita3d_kinematics_inverse_position(self.model, q, thetas))
+
+        return tuple(thetas[0])
+
+    def inverse_velocity(
+        self,
+        thetas: Tuple[float, float, float],
+        output_vel: Tuple[float, float, float],
+    ) -> Tuple[float, float, float]:
+        """Compute the inverse velocity kinematics of the Orbita3d.
+
+        Args:
+            thetas: The three motors angles (in radians).
+            output_vel: The platform velocity (in radians per second).
+        Returns:
+            The three motors velocities (in radians per second).
+        """
+        thetas = ffi.new("double(*)[3]", tuple(thetas))
+        output_vel = ffi.new("double(*)[3]", tuple(output_vel))
+        thetas_velocity = ffi.new("double(*)[3]")
+
+        check(
+            lib.orbita3d_kinematics_inverse_velocity(
+                self.model, thetas, output_vel, thetas_velocity
+            )
+        )
+
+        return tuple(thetas_velocity[0])
+
+    def inverse_torque(
+        self,
+        thetas: Tuple[float, float, float],
+        output_torque: Tuple[float, float, float],
+    ) -> Tuple[float, float, float]:
+        """Compute the inverse torque kinematics of the Orbita3d.
+
+        Args:
+            thetas: The three motors angles (in radians).
+            output_torque: The platform torque (in Newton meters).
+        Returns:
+            The three motors torques (in Newton meters).
+        """
+        thetas = ffi.new("double(*)[3]", tuple(thetas))
+        output_torque = ffi.new("double(*)[3]", tuple(output_torque))
+        thetas_torque = ffi.new("double(*)[3]")
+
+        check(
+            lib.orbita3d_kinematics_inverse_torque(
+                self.model, thetas, output_torque, thetas_torque
+            )
+        )
+
+        return tuple(thetas_torque[0])
+
+
+class Orbita3dController:
+    """Orbita3d controller."""
+
+    def __init__(self, uid: int) -> None:
+        """You should not call this constructor dierctly. Use from_config instead."""
+        self.uid = uid
+
+    @classmethod
+    def from_config(cls, config: str) -> "Orbita3dController":
+        """Create a new Orbita3d controller from a configuration file.
+
+        Args:
+            config: The configuration file path.
+        Returns:
+            A new Orbita3dController.
+        """
+        uid = ffi.new("uint32_t *")
+        check(lib.orbita3d_controller_from_config(config.encode("utf-8"), uid))
+        return cls(uid[0])
+
+    def is_torque_on(self) -> bool:
+        """Check if the torque is on.
+
+        Returns:
+            True if the torque is on, False otherwise.
+        """
+        torque_on = ffi.new("bool *")
+        check(lib.orbita3d_is_torque_on(self.uid, torque_on))
+        return torque_on[0]
+
+    def enable_torque(self, reset_target: bool) -> None:
+        """Enable the torque.
+
+        Args:
+            reset_target (bool): If True, the target position is reset to the current position.
+        """
+        check(lib.orbita3d_enable_torque(self.uid, reset_target))
+
+    def disable_torque(self) -> None:
+        """Disable the torque."""
+        check(lib.orbita3d_disable_torque(self.uid))
+
+    def get_current_orientation(self) -> Tuple[float, float, float, float]:
+        """Get the current orientation of the end-effector.
+
+        Returns:
+            The quaternion representing the end-effector orientation (qx, qy, qz, qw).
+        """
+        q = ffi.new("double(*)[4]")
+        check(lib.orbita3d_get_current_orientation(self.uid, q))
+        return tuple(q[0])
+
+    def get_current_rpy_orientation(self) -> Tuple[float, float, float, float]:
+        """Get the current rpy orientation of the end-effector.
+
+        Returns:
+            The intrinsic Euler representing the end-effector orientation (roll, pitch, yaw).
+        """
+        rpy = ffi.new("double(*)[3]")
+        check(lib.orbita3d_get_current_rpy_orientation(self.uid, rpy))
+        return tuple(rpy[0])
+
+    def get_current_velocity(self) -> Tuple[float, float, float]:
+        """Get the current velocity of the end-effector.
+
+        Returns:
+            The axis-angle representing the end-effector orientation velocity, magnitude is the angular velocity in rad/s and the axis is the rotation axis.
+        """
+        q_velocity = ffi.new("double(*)[3]")
+        check(lib.orbita3d_get_current_velocity(self.uid, q_velocity))
+        return tuple(q_velocity[0])
+
+    def get_current_torque(self) -> Tuple[float, float, float]:
+        """Get the current torque of the end-effector.
+
+        Returns:
+            The axis-angle representing the end-effector torque, magnitude is the torqur magnitude in Nm and the axis is the rotation axis.
+        """
+        q_torque = ffi.new("double(*)[3]")
+        check(lib.orbita3d_get_current_torque(self.uid, q_torque))
+        return tuple(q_torque[0])
+
+    def get_target_orientation(self) -> Tuple[float, float, float, float]:
+        """Get the target orientation of the end-effector.
+
+        Returns:
+            The quaternion representing the end-effector orientation (qx, qy, qz, qw).
+        """
+        q = ffi.new("double(*)[4]")
+        check(lib.orbita3d_get_target_orientation(self.uid, q))
+        return tuple(q[0])
+
+    def set_target_orientation(self, q: Tuple[float, float, float, float]) -> None:
+        """Set the target orientation of the end-effector.
+
+        Args:
+            q: The quaternion representing the end-effector orientation (qx, qy, qz, qw).
+        """
+        q = ffi.new("double(*)[4]", tuple(q))
+        check(lib.orbita3d_set_target_orientation(self.uid, q))
+
+
+    def get_target_rpy_orientation(self) -> Tuple[float, float, float]:
+        """Get the target orientation of the end-effector.
+
+        Returns:
+            The intrinsic Euler representing the end-effector orientation (roll, pitch, yaw).
+        """
+        rpy = ffi.new("double(*)[3]")
+        check(lib.orbita3d_get_target_rpy_orientation(self.uid, rpy))
+        return tuple(rpy[0])
+
+    def set_target_rpy_orientation(self, rpy: Tuple[float, float, float]) -> None:
+        """Set the target orientation of the end-effector. Yaw can be multi-turn.
+
+        Args:
+            rpy: The intrinsic Euler representing the end-effector orientation (roll, pitch, yaw).
+        """
+        rpy = ffi.new("double(*)[3]", tuple(rpy))
+        check(lib.orbita3d_set_target_rpy_orientation(self.uid, rpy))
+
+    def set_target_rpy_orientation_fb(
+        self, rpy: Tuple[float, float, float]
+    ) -> Tuple[float, float, float]:
+        """Set the target orientation of the end-effector. Yaw can be multiturn.
+
+        Args:
+            rpy: The intrinsic Euler representing the end-effector orientation (roll, pitch, yaw).
+        Returns:
+            The current intrinsic Euler orientation  (roll, pitch, yaw)
+        """
+        rpy = ffi.new("double(*)[3]", tuple(rpy))
+        fb = ffi.new("double(*)[3]")
+        check(lib.orbita3d_set_target_rpy_orientation_fb(self.uid, rpy, fb))
+        return tuple(fb[0])
+
+
+
+    def set_target_orientation_fb(
+        self, q: Tuple[float, float, float, float]
+    ) -> Tuple[float, float, float, float]:
+        """Set the target orientation of the end-effector.
+
+        Args:
+            q: The quaternion representing the end-effector orientation (qx, qy, qz, qw).
+        Returns:
+            The current orientation quaternion (qx, qy, qz, qw)
+        """
+        q = ffi.new("double(*)[4]", tuple(q))
+        fb = ffi.new("double(*)[4]")
+        check(lib.orbita3d_set_target_orientation_fb(self.uid, q, fb))
+        return tuple(fb[0])
+
+    def get_raw_motors_velocity_limit(self) -> Tuple[float, float, float]:
+        """Get the raw motors velocity limit.
+
+        Be carfeful, this is not the end-effector velocity limit. But this is the raw velocity limit of the disks!
+
+        Returns:
+            The raw motors velocity limit (in radians per second).
+        """
+        velocity_limit = ffi.new("double(*)[3]")
+        check(lib.orbita3d_get_raw_motors_velocity_limit(self.uid, velocity_limit))
+        return tuple(velocity_limit[0])
+
+    def set_raw_motors_velocity_limit(
+        self, velocity_limit: Tuple[float, float, float]
+    ) -> None:
+        """Set the raw motors velocity limit.
+
+        Be carfeful, this is not the end-effector velocity limit. But this is the raw velocity limit of the disks!
+
+        Args:
+            velocity_limit: The raw motors velocity limit (in radians per second).
+        """
+        velocity_limit = ffi.new("double(*)[3]", tuple(velocity_limit))
+        check(lib.orbita3d_set_raw_motors_velocity_limit(self.uid, velocity_limit))
+
+    def get_raw_motors_torque_limit(self) -> Tuple[float, float, float]:
+        """Get the raw motors torque limit.
+
+        Be carfeful, this is not the end-effector torque limit. But this is the raw torque limit of the disks!
+
+        Returns:
+            The raw motors torque limit (in Newton meters).
+        """
+        torque_limit = ffi.new("double(*)[3]")
+        check(lib.orbita3d_get_raw_motors_torque_limit(self.uid, torque_limit))
+        return tuple(torque_limit[0])
+
+    def set_raw_motors_torque_limit(
+        self, torque_limit: Tuple[float, float, float]
+    ) -> None:
+        """Set the raw motors torque limit.
+
+        Be carfeful, this is not the end-effector torque limit. But this is the raw torque limit of the disks!
+
+        Args:
+            torque_limit: The raw motors torque limit (in Newton meters).
+        """
+        torque_limit = ffi.new("double(*)[3]", tuple(torque_limit))
+        check(lib.orbita3d_set_raw_motors_torque_limit(self.uid, torque_limit))
+
+    def get_raw_motors_pid_gains(
+        self,
+    ) -> Tuple[
+        Tuple[float, float, float],
+        Tuple[float, float, float],
+        Tuple[float, float, float],
+    ]:
+        """Get the raw motors PID gains.
+
+        Be carfeful, this is not the end-effector PID gains. But this is the raw PID gains of the disks!
+
+        Returns:
+            The raw motors PID gains (kp, ki, kd).
+        """
+        pids = ffi.new("double(*)[3][3]")
+        check(lib.orbita3d_get_raw_motors_pid_gains(self.uid, pids))
+        return pids[0]
+
+    def set_raw_motors_pid_gains(
+        self,
+        pids: Tuple[
+            Tuple[float, float, float],
+            Tuple[float, float, float],
+            Tuple[float, float, float],
+        ],
+    ) -> None:
+        """Set the raw motors PID gains.
+
+        Be carfeful, this is not the end-effector PID gains. But this is the raw PID gains of the disks!
+
+        Args:
+            pids: The raw motors PID gains (kp, ki, kd).
+        """
+        pids = ffi.new("double(*)[3][3]", tuple(pids))
+        check(lib.orbita3d_set_raw_motors_pid_gains(self.uid, pids))
+
+    def get_raw_motors_velocity(self) -> Tuple[float, float, float]:
+        """Get the raw motors velocity.
+
+        Be carfeful, this is not the end-effector velocity. But this is the raw velocity of the disks!
+
+        Returns:
+            The raw motors velocity (in radians per second).
+        """
+        velocity = ffi.new("double(*)[3]")
+        check(lib.orbita3d_get_raw_motors_velocity(self.uid, velocity))
+        return tuple(velocity[0])
+    
+    def get_raw_motors_position(self) -> Tuple[float, float, float]:
+        """Get the raw motors position.
+
+        Be carfeful, this is not the end-effector position. But this is the raw position of the disks!
+
+        Returns:
+            The raw motors position (in radians).
+        """
+        position = ffi.new("double(*)[3]")
+        check(lib.orbita3d_get_raw_motors_position(self.uid, position))
+        return tuple(position[0])
+    
+    def get_raw_motors_current(self) -> Tuple[float, float, float]:
+        """Get the raw motors torque.
+
+        Be carfeful, this is not the end-effector torque. But this is the raw torque of the disks!
+
+        Returns:
+            The raw motors torque (in Newton meters).
+        """
+        torque = ffi.new("double(*)[3]")
+        check(lib.orbita3d_get_raw_motors_current(self.uid, torque))
+        return tuple(torque[0])
+    
+
+    def get_raw_axis_sensor(self) -> Tuple[float, float, float]:
+        """Get the raw axis sensor.
+
+        Be carfeful, this is not the end-effector position. But this is the raw position of the disks!
+
+        Returns:
+            The raw axis sensor (in radians).
+        """
+        axis = ffi.new("double(*)[3]")
+        check(lib.orbita3d_get_axis_sensors(self.uid, axis))
+        return tuple(axis[0])
+    
+    def get_raw_axis_zeros(self) -> Tuple[float, float, float]:
+        """Get the raw axis zero.
+
+        Axis sensor value at the mechanical zero position.
+
+        Returns:
+            The raw axis zero (in radians).
+        """
+        axis = ffi.new("double(*)[3]")
+        check(lib.orbita3d_get_axis_sensor_zeros(self.uid, axis))
+        return tuple(axis[0])
+    
+    def get_control_mode(self) -> int:
+        """Get the control mode.
+
+        Returns:
+            The control mode.
+        """
+        mode = ffi.new("uint8_t *")
+        check(lib.orbita3d_get_control_mode(self.uid, mode))
+        return mode[0]
+    
+    def set_control_mode(self, mode: int) -> None:
+        """Set the control mode.
+
+        Args:
+            mode: The control mode.
+        """
+        mode = ffi.new("uint8_t *", mode)
+        check(lib.orbita3d_set_control_mode(self.uid, mode))
+        
+    def set_target_torque(self, torque: Tuple[float, float, float]) -> None:
+        """Set the target torque of the end-effector.
+
+        Args:
+            torque: The quaternion representing the end-effector orientation torque (qx, qy, qz, qw).
+        """
+        torque = ffi.new("double(*)[3]", tuple(torque))
+        check(lib.orbita3d_set_target_torque(self.uid, torque))
+    
+    def set_target_velocity(self, velocity: Tuple[float, float, float]) -> None:
+        """Set the target velocity of the end-effector.
+
+        Args:
+            velocity: The quaternion representing the end-effector orientation velocity (qx, qy, qz, qw).
+        """
+        velocity = ffi.new("double(*)[3]", tuple(velocity))
+        check(lib.orbita3d_set_target_velocity(self.uid, velocity))
+    
+    
+
+def check(err):
+    if err != 0:
+        raise RuntimeError("Error code: {}".format(err))
