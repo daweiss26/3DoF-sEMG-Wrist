@@ -15,4 +15,4 @@ orbita3d_control/target/
 .DS_Store
 __MACOSX/
 ._*
-Cargo.lock
+*.pyc
