@@ -1,0 +1,16 @@
+.git
+.gitignore
+.venv
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.so
+*.dylib
+*.dll
+*.egg-info/
+build/
+dist/
+.vscode/
+__MACOSX/
+.DS_Store

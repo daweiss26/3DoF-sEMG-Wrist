@@ -76,17 +76,20 @@ def main():
     parser.add_argument("--disable_wrist", action="store_true", help="Prevents commands from being sent to Orbita")
     parser.add_argument("--disable_hand", action="store_true", help="Prevents command from being sent to Ability Hand")
     parser.add_argument("--use_elbow", action="store_true", help="Will try to detect user's elbow")
+    parser.add_argument("--orbita_config", default="./config/default.yaml",help="Path to the Orbita3D YAML config file")
+    parser.add_argument("--hand_port", default='cu.usbserial-BG01X7S0', help="Serial port for the Ability Hand (for example /dev/ttyUSB0 on Linux)")
+    parser.add_argument("--camera_index", type=int, default=0, help="Camera index to pass to OpenCV")
     args = parser.parse_args()
 
     global landmarking_result
     stop_event.clear()
 
-    with Orbita('./config/default.yaml') as orbita:
+    with Orbita(args.orbita_config) as orbita:
         orbita.wake_up()
 
-        with AbilityHand('cu.usbserial-BG01X7S0') as abh:
+        with AbilityHand(args.hand_port) as abh:
 
-            with Landmarker(1, './task/hand_landmarker.task', './task/pose_landmarker_lite.task', args.use_elbow) as landmarker:
+            with Landmarker(args.camera_index, './task/hand_landmarker.task', './task/pose_landmarker_lite.task', args.use_elbow) as landmarker:
                 frame_width = int(landmarker.camera.get(CAP_PROP_FRAME_WIDTH))
                 frame_height = int(landmarker.camera.get(CAP_PROP_FRAME_HEIGHT))
                 transformer = Transformer(frame_width, frame_height)
