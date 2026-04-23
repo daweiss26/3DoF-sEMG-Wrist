@@ -8,6 +8,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /app
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    libudev-dev \
+    curl \
     build-essential \
     cargo \
     git \
@@ -16,6 +18,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libgomp1 \
     libusb-1.0-0 \
     pkg-config \
+    libgles2 \
+    libegl1 \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt ./requirements.txt
@@ -23,7 +27,7 @@ COPY orbita3d_control ./orbita3d_control
 
 RUN pip install --upgrade pip setuptools wheel maturin && \
     pip install -r requirements.txt && \
-    pip install ./orbita3d_control/orbita3d_c_api
+    pip install -e ./orbita3d_control/orbita3d_c_api
 
 COPY . .
 

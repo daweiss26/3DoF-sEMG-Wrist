@@ -106,13 +106,13 @@ If using Mac/Linux: simply run a demo script from the project root directory suc
 
 ## Docker
 
-You can also run the camera demo through Docker instead of creating a local Python environment. The Docker image installs the Python dependencies from `requirements.txt`, builds and installs the local `orbita3d_control/orbita3d_c_api` package, and starts `src/orbita_abh_camera.py`.
+You can also run the camera demo through Docker instead of creating a local Python environment if you are using Linux or an OS where Docker is not run on a virtual machine. The Docker image installs the Python dependencies from `requirements.txt`, builds and installs the local `orbita3d_control/orbita3d_c_api` package, and starts `src/orbita_abh_camera.py`.
 
 ### Build the image
 
 From the project root, run:
 ```
-docker build -t orbita-camera-demo .
+docker build --platform linux/amd64 -t orbita-camera-demo .
 ```
 
 ### Run the container
@@ -120,7 +120,7 @@ docker build -t orbita-camera-demo .
 The script needs access to your camera and, if you are controlling hardware, your serial devices. It also opens an OpenCV display window, so on Linux you will typically need to share your X11 socket. A common Linux example is:
 
 ```
-docker run --rm -it \
+docker run --platform linux/amd64 --rm -it \
   --device /dev/video0:/dev/video0 \
   --device /dev/ttyUSB0:/dev/ttyUSB0 \
   -e DISPLAY=$DISPLAY \

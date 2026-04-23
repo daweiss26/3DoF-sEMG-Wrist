@@ -16,3 +16,4 @@ orbita3d_control/target/
 __MACOSX/
 ._*
 *.pyc
+**/_orbita/
