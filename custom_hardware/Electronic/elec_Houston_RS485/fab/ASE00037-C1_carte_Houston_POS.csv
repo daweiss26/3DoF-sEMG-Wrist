@@ -1,0 +1,38 @@
+Ref,Val,Package,PosX,PosY,Rot,Side
+C1,100n 6V3,C_0603_1608Metric,-31.475,-28.85,180,top
+C80,100n 6V3,C_0603_1608Metric,-28.4,-34.8,-90,top
+C81,100n 6V3,C_0603_1608Metric,-19,-39.3,90,top
+C82,100n 6V3,C_0603_1608Metric,-10.2,-38.4,180,top
+C83,100n 6V3,C_0603_1608Metric,-6.4,-28.5,180,top
+C84,100n 6V3,C_0603_1608Metric,-8.4,-22.1,90,top
+C85,100n 6V3,C_0603_1608Metric,-24.3,-19.3,180,top
+D1,USBLC6-2SC6,SOT23-6L,-3.7,-34.4,180,top
+D2,Green,LED_0603_1608Metric_Pad1.05x0.95mm_HandSolder,-36.2,-9.3,0,top
+D3,Red,LED_0603_1608Metric_Pad1.05x0.95mm_HandSolder,-36.2,-11,0,top
+FID1,DNP - Fiducial,Fiducial_1mm_Mask2mm,0,0,0,top
+FID2,DNP - Fiducial,Fiducial_1mm_Mask2mm,-23,-1,0,top
+FID3,DNP - Fiducial,Fiducial_1mm_Mask2mm,4,-48,0,top
+J1,10118194-0001LF,Amphenol_10118194-0001LF,8.6725,-38,90,top
+J3,DNP - SIL6,PinHeader_1x06_P2.54mm_Vertical,-28.9,-1,0,top
+J4,Pico4,Molex_PicoBlade_53398-0471_1x04-1MP_P1.25mm_Vertical,1.65,-38.4,-90,top
+J5,"FFC 0,5 mm 10w",Hirose_FH12-10S-0.5SH_1x10-1MP_P0.50mm_Horizontal,-14.9,-2.8,180,top
+J10,"FFC 0,5 mm 40w",Hirose_FH12-40S-0.5SH_1x40-1MP_P0.50mm_Horizontal,5.1,-11.8,90,top
+J11,Pico5,Molex_PicoBlade_53261-0571_1x05-1MP_P1.25mm_Horizontal,-32.75,-48.2,0,top
+J21,Pico5,Molex_PicoBlade_53261-0571_1x05-1MP_P1.25mm_Horizontal,-19.25,-48.25,0,top
+J31,Pico5,Molex_PicoBlade_53261-0571_1x05-1MP_P1.25mm_Horizontal,-5.75,-48.25,0,top
+R1,100k,R_0603_1608Metric,-31.5,-27.2,0,top
+R2,10k,R_0603_1608Metric,-31.7,-17.2,90,top
+R3,470R,R_0603_1608Metric,-32.8,-10,0,top
+R4,470R,R_0603_1608Metric,-32.8,-11.6,0,top
+R6,DNP-4k7,R_0603_1608Metric,-19.6,-42,180,top
+R7,DNP-9k1,R_0603_1608Metric,-22.7,-42,180,top
+R17,0R,R_0603_1608Metric,-19.6,-43.6,0,top
+R26,DNP-0R,R_0603_1608Metric,-18.1,-15.1,90,top
+R27,0R,R_0603_1608Metric,-18.1,-18.2,90,top
+R36,DNP-0R,R_0603_1608Metric,-23.0975,-11.5,0,top
+R37,DNP-0R,R_0603_1608Metric,-23.8,-13.8,90,top
+R38,0R,R_0603_1608Metric,-3.2,-42.7,90,top
+R39,0R,R_0603_1608Metric,-5.6,-40.8,180,top
+R40,DNP-0R,R_0603_1608Metric,-5.6,-42.5,180,top
+SW1,SW_SPDT,SW_SPDT_CK-JS102011SAQN,-37.5,-19.1,-90,top
+U1,STM32G474,QFP50P1600X1600X160-100N,-18,-28.75,0,top
