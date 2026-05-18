@@ -62,6 +62,7 @@ def main():
     parser.add_argument("model_name", help="Path of the model file")
     parser.add_argument("--map_position", action="store_true", help="Map EMG to position")
     parser.add_argument("--simulate", action="store_true", help="Plot to a 3D visualizer instead of moving Orbita")
+    parser.add_argument("--orbita_config", default="./config/default.yaml",help="Path to the Orbita3D YAML config file")
     args = parser.parse_args()
 
     MODEL_FILE = args.model_name
@@ -88,7 +89,7 @@ def main():
         print("SIMULATION MODE ACTIVE: Orbita will not move.")
         visualizer = QuaternionVisualizer()
 
-    with Orbita('./config/default.yaml') as orbita:
+    with Orbita(args.orbita_config) as orbita:
         orbita.wake_up()
         mindrove.prepare_session()
         mindrove.start_stream()
@@ -96,9 +97,8 @@ def main():
         print("Control Active")
         
         # Initial Orientation
-        cur_o = orbita.get_orientation() 
         # Orbita's order of rpy: Z (outward) is roll, X (rightward) is pitch, Y (upward) is yaw
-        q_current = Quaternion(x=cur_o[1], y=cur_o[2], z=cur_o[0], w=cur_o[3])
+        q_current = orbita.get_orientation() 
 
         try:
             while True:
@@ -122,7 +122,7 @@ def main():
                         q_new = get_3d_position(q_current, prediction)
                     else:
                         q_new = integrate_3d_velocity(
-                            (q_current.x, q_current.y, q_current.z, q_current.w), 
+                            q_current, 
                             prediction, 
                             UPDATE_INTERVAL
                         )
