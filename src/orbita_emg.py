@@ -47,7 +47,7 @@ def integrate_3d_velocity(current_q_tuple, velocity_vector, dt):
     # Deadzone for stability
     omega_mag = np.linalg.norm(velocity_vector)
     theta = omega_mag * dt
-    if theta < 0.15:
+    if theta < 0.1:
         return current_q_tuple
 
     # Create delta quaternion

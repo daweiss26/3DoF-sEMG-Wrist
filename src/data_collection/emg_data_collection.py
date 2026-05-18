@@ -80,9 +80,10 @@ def process_and_save(all_mindrove_data, all_mediapipe_data, output_file, append_
 		rot_vec = rot_vec.flatten() # Rodrigues returns arrays wrapped in an array
 
 		# If enabled, just map EMG to rotation instead of velocity
-		rotation_label = rot_vec / actual_window_duration # rad/s vector
 		if map_position:
 			rotation_label = rot_vec
+		else:
+			rotation_label = rot_vec / actual_window_duration # rad/s vector
 
 		# Move onto next window
 		all_emg_windows.append(emg_window)
@@ -90,7 +91,7 @@ def process_and_save(all_mindrove_data, all_mediapipe_data, output_file, append_
 		curr_time += WINDOW_SLIDING_STEP
 
 	if all_emg_windows and all_rotation_labels:
-		# By normalizing here, we lose raw data values, but standardizes
+		# By normalizing here, we lose raw data values, but standardizes against non-stationary EMG
 		scaling_factor = np.percentile(np.abs(all_emg_windows), 99)
 		all_emg_windows_norm = all_emg_windows / scaling_factor
 		np.savez_compressed(
