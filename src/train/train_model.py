@@ -159,29 +159,27 @@ def main():
     parser.add_argument("model_name", help="Name for the output model file")
     parser.add_argument("--resume", help="Path to existing .keras model to fine-tune", default=None)
     args = parser.parse_args()
-    _, input_file = args.input_file.split('=', 1)
-    _, model_name = args.model_name.split('=', 1)
 
     # This data should already be normalized per session
-    print(f"Loading data from {input_file}...")
-    X, y = load_data(input_file)
+    print(f"Loading data from {args.input_file}...")
+    X, y = load_data(args.input_file)
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, random_state=42)
 
     if args.resume:
         # Lower learning rate and fewer epochs for fine-tuning
-        print(f"INCREMENTAL MODE: Fine-tuning {args.resume} into {model_name}")
+        print(f"INCREMENTAL MODE: Fine-tuning {args.resume} into {args.model_name}")
         model = tf.keras.models.load_model(args.resume)
         optimizer = optimizers.Adam(learning_rate=LR_FINE_TUNE)
         epochs = EPOCHS_FINE_TUNE
     else:
-        print(f"INITIALIZE MODE: Building {model_name} from scratch")
+        print(f"INITIALIZE MODE: Building {args.model_name} from scratch")
         model = build_model(INPUT_SHAPE)
         optimizer = optimizers.Adam(learning_rate=LR_FRESH)
         epochs = EPOCHS_FRESH
 
     model.compile(optimizer=optimizer, loss='mse', metrics=['mae'])
-    checkpoint = tf.keras.callbacks.ModelCheckpoint(f"{model_name}.keras", save_best_only=True, monitor='val_loss', mode='min')
+    checkpoint = tf.keras.callbacks.ModelCheckpoint(f"{args.model_name}.keras", save_best_only=True, monitor='val_loss', mode='min')
     
     history = model.fit(
         X_train, y_train,
